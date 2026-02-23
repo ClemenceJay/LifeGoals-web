@@ -176,7 +176,7 @@ function App() {
     }
 
     return (
-        <div className="App">
+        <div className="appLifeGoals">
             {modalVisible ?
                 <ModaleGenerale
                         typeModale={typeModalToOpen}
@@ -191,7 +191,7 @@ function App() {
                         newGoalInput={newGoalInput}
                         setNewGoalInput={setNewGoalInput}
                 /> : null}
-            <span>Mes Life Goals</span>
+            <p>Mes Life Goals</p>
             <DisplayGoalDone displayDone={displayDone} toggleDisplayDone={toggleDisplayDone}/>
             <ListeGoal listeGoal={sampleGoals} displayDone={displayDone} openModal={openModal}/>
             <AddGoal newGoalInput={newGoalInput} setNewGoalInput={setNewGoalInput}

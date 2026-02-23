@@ -1,0 +1,7 @@
+.listeGoal {
+    margin: 10px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 600px;
+}

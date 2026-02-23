@@ -1,5 +1,6 @@
 import React from 'react';
 import CardGoal from "../CardGoal/CardGoal.jsx";
+import styles from "./ListeGoal.module.css";
 
 const ListeGoal = ({listeGoal, displayDone, openModal}) => {
 
@@ -11,7 +12,7 @@ const ListeGoal = ({listeGoal, displayDone, openModal}) => {
     }
 
     return (
-        <div>
+        <div className={styles.listeGoal}>
             {listToDisplay.map((goal) => {
                 return <CardGoal key={goal.id} goal={goal} openModal={openModal}/>
             })}

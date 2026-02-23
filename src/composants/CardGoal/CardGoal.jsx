@@ -15,7 +15,7 @@ const CardGoal = ({goal, openModal}) => {
     // On affiche le bouton d'ajout d'enfant uniquement aux taches qui n'ont pas de parents
 
     return (
-        <div className={styles.cardGoal}>
+        <div className={styles.cardGoal} style={{backgroundColor: goal.done ? '#abababff' : '#F7F3F2'}}>
             <button onClick={() => openModal(goal, "edit")} className={styles.textCardGoal}>{goal.nom}</button>
             <div className={styles.actionCardGoal}>
                 {goal.child.length === 0 ?
