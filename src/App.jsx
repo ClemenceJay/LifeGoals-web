@@ -1,35 +1,203 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useState} from 'react';
 import './App.css'
+import ListeGoal from "./composants/ListeGoal/ListeGoal.jsx";
+import AddGoal from "./composants/AddGoal/AddGoal.jsx";
+import DisplayGoalDone from "./composants/DisplayGoalDone/DisplayGoalDone.jsx";
+import ModaleGenerale from "./composants/ModaleGenerale/ModaleGenerale.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    const [displayDone, setDisplayDone] = useState(false);
+    // Variables d'ouverture de la modale
+    const [modalVisible, setModalVisible] = useState(false);
+    const [typeModalToOpen, setTypeModalToOpen] = useState(false);
+    const [goalModal, setGoalModal] = useState("");
+    const [nomGoalToEdit, setNomGoalToEdit] = useState("");
+    const [newGoalInput, setNewGoalInput] = useState("");
+    const [sampleGoals, setSampleGoals] = useState([
+        {id: 1, nom: "Faire les courses", done: false, parent: null, child: []},
+        {id: 2, nom: "Perdre 5 kgs", done: false, parent: null, child: []},
+        {id: 3, nom: "Apprendre un nouveau langage", done: false, parent: null, child: []}
+    ]);
+
+    // Fonctions d'action sur les goal
+    const addChild = (idParent) => {
+        // création du goal enfant
+        let newChild = {
+            id: Date.now(),
+            nom: newGoalInput,
+            done: false,
+            parent: idParent,
+            child: []
+        };
+        // Ajout de l'id enfant chez le parent
+        setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => {
+            if (prevGoal.id === idParent) {
+                let arrayChild = prevGoal.child;
+                arrayChild.push(newChild.id);
+                return {...prevGoal, child: arrayChild}
+            } else {
+                return prevGoal
+            }
+        }));
+
+        // Ajout de l'enfant dans la liste des goals
+        setSampleGoals([...sampleGoals, newChild]);
+        setNewGoalInput("");
+        setGoalModal("");
+        setModalVisible(false)
+    }
+
+    const ajouterGoalParent = () => {
+        // Génération d'un nouvel objet avec un id unique (grace à Date.now())
+        let newGoal = {
+            id: Date.now(),
+            nom: newGoalInput,
+            done: false,
+            parent: null,
+            child: []
+        }
+        setSampleGoals([...sampleGoals, newGoal]);
+        setNewGoalInput("");
+    }
+
+    const editChild = (parentId, childId) => {
+        // on modifie le champ enfant du parent associé:
+        setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => {
+            if (prevGoal.id === parentId) {
+                let arrayChildUpdate = prevGoal.child.filter((child) => child != childId);
+                return {...prevGoal, child: arrayChildUpdate}
+            } else {
+                return prevGoal
+            }
+        }));
+    }
+
+    const deleteGoal = (goalToDelete) => {
+        // on check si c'etait un élement parent pour pouvoir supprimer aussi ses goals enfants:
+        if (goalToDelete.child != "") {
+            setSampleGoals(sampleGoals.filter((item) => item.id != goalToDelete.id && item.parent != goalToDelete.id));
+        }
+        // Si non, suppression simple
+        else {
+            setSampleGoals(sampleGoals.filter((item) => item.id != goalToDelete.id));
+        }
+
+        // Si c'etait un enfant, il faut modifier le champ child de son parent associé
+        if (goalToDelete.parent != null) {
+            editChild(goalToDelete.parent, goalToDelete.id)
+        }
+        setModalVisible(false);
+        setGoalModal("");
+    }
+
+    const markAsDoneGoal = (goalDone) => {
+
+        // Si le goal est déjà en done alors on va le repasser en not done ainsi que son parent s'il en a un
+        if (goalDone.done) {
+
+            if (goalDone.parent != null) {
+                setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => prevGoal.id === goalDone.id || prevGoal.id === goalDone.parent ? {
+                    ...prevGoal,
+                    done: false
+                } : prevGoal));
+            } else {
+                setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => prevGoal.id === goalDone.id ? {
+                    ...prevGoal,
+                    done: false
+                } : prevGoal));
+            }
+
+            // Sinon, On va gérer le passage en done et nottement s'il y a d'éventuels enfants
+        } else {
+
+            // Si le goal a un parent on va checker si les autres enfants sont done ou pas
+            if (goalDone.parent != null) {
+
+                // on récupère le parent et la liste de ses enfants (hors celui qu'on passe en done)
+                let parent = sampleGoals.find((goal) => goal.id === goalDone.parent);
+                let listeEnfants = parent.child.filter((goalID) => goalID != goalDone.id);
+
+                // Si au moins un des enfant à done = false alors la tache parente n'est pas 100% terminée
+                let nbEnfantNotDone = 0;
+                listeEnfants.forEach(enfantId => {
+                    let enfant = sampleGoals.find((goal) => goal.id === enfantId);
+                    if (enfant.done == false) {
+                        nbEnfantNotDone += 1
+                    }
+                });
+
+                // Si tous les autres enfants sont à done on passe en done le goal et son parent (si non, on passe en done juste le goal de base)
+                if (nbEnfantNotDone == 0) {
+                    setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => prevGoal.id === goalDone.id || prevGoal.id === goalDone.parent ? {
+                        ...prevGoal,
+                        done: true
+                    } : prevGoal));
+                } else {
+                    setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => prevGoal.id === goalDone.id ? {
+                        ...prevGoal,
+                        done: true
+                    } : prevGoal));
+                }
+
+                // Si le goal n'a pas de parent, on s'en fiche et on le passe en done
+            } else {
+                setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => prevGoal.id === goalDone.id ? {
+                    ...prevGoal,
+                    done: true
+                } : prevGoal));
+            }
+        }
+
+        setModalVisible(false);
+        setGoalModal("");
+    }
+
+    const editGoal = (indexGoalToEdit) => {
+        setSampleGoals(precedentsGoal => precedentsGoal.map((prevGoal) => prevGoal.id === indexGoalToEdit ? {
+            ...prevGoal,
+            nom: nomGoalToEdit
+        } : prevGoal));
+        setModalVisible(false);
+        setGoalModal("");
+        setNomGoalToEdit("");
+    }
+
+    // Fonctions d'affichage
+    const toggleDisplayDone = () => {
+        setDisplayDone(!displayDone);
+    }
+
+    const openModal = (goalModal, typeModale) => {
+        setModalVisible(true);
+        setTypeModalToOpen(typeModale);
+        setGoalModal(goalModal);
+        setNomGoalToEdit(goalModal.nom);
+    }
+
+    return (
+        <div className="App">
+            {modalVisible ?
+                <ModaleGenerale
+                        typeModale={typeModalToOpen}
+                        setModalVisible={setModalVisible}
+                        goalModal={goalModal}
+                        deleteGoal={deleteGoal}
+                        editGoal={editGoal}
+                        nomGoalToEdit={nomGoalToEdit}
+                        setNomGoalToEdit={setNomGoalToEdit}
+                        markAsDoneGoal={markAsDoneGoal}
+                        addChild={addChild}
+                        newGoalInput={newGoalInput}
+                        setNewGoalInput={setNewGoalInput}
+                /> : null}
+            <span>Mes Life Goals</span>
+            <DisplayGoalDone displayDone={displayDone} toggleDisplayDone={toggleDisplayDone}/>
+            <ListeGoal listeGoal={sampleGoals} displayDone={displayDone} openModal={openModal}/>
+            <AddGoal newGoalInput={newGoalInput} setNewGoalInput={setNewGoalInput}
+                     ajouterGoalParent={ajouterGoalParent}/>
+        </div>
+    )
 }
 
 export default App

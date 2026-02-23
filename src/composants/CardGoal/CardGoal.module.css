@@ -1,0 +1,28 @@
+.cardGoal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #F7F3F2;
+    border: #717258 1px solid;
+    border-radius: 15px;
+    margin: 10px;
+    gap:10px;
+    padding: 10px;
+}
+
+.textCardGoal{
+    font-weight: 600;
+    color: #717258ff;
+}
+
+.actionCardGoal{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.imgCardGoal {
+    width: 15px;
+}
