@@ -1,5 +1,6 @@
 import React from 'react';
 
+import styles from './ModaleGenerale.module.css';
 import ModalDel from "../ModalDel/ModalDel.jsx";
 import ModalEdit from "../ModalEdit/ModalEdit.jsx";
 import ModalDone from "../ModalDone/ModalDone.jsx";
@@ -9,7 +10,7 @@ const ModaleGenerale = ({ typeModale, setModalVisible, goalModal, deleteGoal, ed
 
     // Affichage des modales selon le type d'action
     return (
-        <div>
+        <div className={styles.modaleGenerale}>
             {typeModale ==='del'? <ModalDel setModalVisible={setModalVisible} goalModal={goalModal} deleteGoal={deleteGoal}/> : null}
             {typeModale ==='edit'? <ModalEdit setModalVisible={setModalVisible} goalModal={goalModal} editGoal={editGoal} setNomGoalToEdit={setNomGoalToEdit} nomGoalToEdit={nomGoalToEdit}/> : null}
             {typeModale ==='done'? <ModalDone setModalVisible={setModalVisible} goalModal={goalModal} markAsDoneGoal={markAsDoneGoal}/> : null}

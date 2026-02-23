@@ -1,9 +1,10 @@
 import React from 'react';
+import styles from './ModalEdit.module.css';
 
 const ModalEdit = ({ goalModal, setModalVisible, setNomGoalToEdit, editGoal, nomGoalToEdit }) => {
 
     return (
-        <div>
+        <div className={styles.modaleEnfant}>
             <p>Modifier le goal</p>
             <input value={nomGoalToEdit} onInput={(e) => {setNomGoalToEdit(e.target.value)}}/>
             <div>

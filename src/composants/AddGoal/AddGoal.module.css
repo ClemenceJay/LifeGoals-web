@@ -1,0 +1,14 @@
+.addGoalContainer {
+    position: relative;
+}
+
+.inputAddGoal{
+    height: 35px;
+    width: 250px;
+}
+
+.addImg {
+    position: absolute;
+
+    width: 30px;
+}
